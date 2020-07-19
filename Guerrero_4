@@ -1,0 +1,66 @@
+###################################################################################################################################################################################
+#Map File from Diego Valle
+###################################################################################################################################################################################
+library(sf)
+library(tools)
+library(ggplot2)
+library(viridis)
+library(ggthemes)
+
+map_file='/Users/armandoal/Desktop/AGEB INEGI/12_guerrero/conjunto_de_datos/12a.shp'
+map=st_read(map_file)
+map$AGEB=map$CVEGEO
+
+map_file='/Users/armandoal/Desktop/AGEB INEGI/AGEB_Pobreza.csv'
+data=read.csv(map_file,sep=",",header=T)
+
+
+
+master=merge(map, data, all = TRUE)
+master$Rango_de_pobreza_extrema_pct[master$Rango_de_pobreza_extrema_pct %in% c("Sin viviendas particulares habitadas","Una vivienda particular habitada")]=NA
+master$Rango_de_pobreza_pct[master$Rango_de_pobreza_pct %in% c("Sin viviendas particulares habitadas","Una vivienda particular habitada")]="[ 0, 18]"
+#master$Rango_de_pobreza_pct[(master$CVE_MUN=="001") & (master$CVE_LOC %in% c("0001","0158","0081")) & master$CVE_AGEB=="1615"]<-"[ 0, 18]"
+colors=c("[ 0, 18]",  
+         "(18, 34]",
+         "(34, 50]",
+         "(50, 70]",
+         "(70, 100]")
+
+factor_pobreza=factor(master$Rango_de_pobreza_pct,ordered=TRUE,levels=colors)
+
+master$factor_pobreza=factor_pobreza
+
+master <- cbind(map, st_coordinates(st_centroid(master)))
+master$CVE_AGEB <- toTitleCase(as.character(master$CVE_AGEB))
+
+
+display.brewer.pal(n=8, name="Oranges")
+brewer.pal(n=8,name="Oranges")
+
+ggplot() +
+  geom_sf(data = master[(master$CVE_MUN=="001") & (master$CVE_LOC %in% c("0001")),], show.legend = T, color="lightgoldenrodyellow", aes(fill=factor_pobreza)) +
+  #geom_sf(data = master[(master$CVE_MUN=="001") & (master$CVE_LOC %in% c("0001","0158","0081")),], show.legend = T, color="lightgoldenrodyellow", aes(fill=factor_pobreza)) +
+  scale_fill_manual(values=c("#FFF5EB","#FDD0A2", "#FDAE6B" , "#D94801", "deeppink4"))+
+#  geom_text(data = master[(master$CVE_MUN=="001") & (master$CVE_LOC %in% c("0001","0158","0081")),], aes(X, Y, label = CVE_AGEB), size = 2, color='gray0', fontface="bold") +
+  theme(panel.background=element_rect(fill="black"),
+        panel.grid.major = element_blank(),
+        axis.line = element_blank(),axis.text = element_blank(),
+        axis.ticks = element_blank(),axis.title = element_blank())
+#theme_dark()
+#scale_fill_manual(values=c("lightgoldenrodyellow",
+#                           "lightpink",
+#                          "coral",
+#                         "deeppink",
+#                        "deeppink4"))+
+  #scale_fill_viridis(option="magma")+
+  #scale_color_viridis(discrete=TRUE, option="B")+
+  
+  #ggtitle(title_graph)+
+  #labs(fill=ID)+
+  #theme_void() 
+
+
+
+
+map_file=paste("/Users/armandoal/Desktop/Elections/eleccion_2010/colonias/colonias_12",".csv", sep="")
+data=read.csv(map_file, sep=",", header=T)
