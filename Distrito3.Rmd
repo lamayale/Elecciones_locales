@@ -16,12 +16,13 @@ library(matrixStats)
 library(tidyverse)
 library(formattable)
 ```
+La información y el código para este informe se encuentra en la página de Github https://github.com/lamayale/Elecciones_locales/blob/master/Distrito3.Rmd .
 
 ## Participación Electoral
 
-El distrito local 3 tiene 70 secciones electorales. Las secciones con mayor número de electores son las 256 y 279 con más de 4 mil electores en la lista nominal de 2018. La sección 256 comprende de las colonias CTM, la Barranca de la Laja, y Marroquín, y la sección 279 comprende de las colonias Praderas de Costa Azul, Rinconada del Mar, Vista Hermosa, entre otras. Otras secciones relevantes son la 278, 300, 304, 298 y 262, todas con más de 2500 electores y básicamente comprenden de las zonas de Farallón, Cumbres de Figueroa, Rancho Acapulco, e Icacos. En total, dichas secciones suman 23,071 votos, mientras que la elección pasada tuvo 59 mil votos. Por lo que cualquier estrategia para ganar el distrito 3 necesita pasar por estas zonas (mapa 0).
+El distrito local 3 tiene 70 secciones electorales. Las secciones con mayor número de electores son las 256 y 279, con más de 4 mil votantes potenciales en la lista nominal de 2018. La sección 256 comprende de las colonias CTM, la Barranca de la Laja, y Marroquín, y la sección 279 comprende de las colonias Praderas de Costa Azul, Rinconada del Mar, Vista Hermosa, entre otras. Otras secciones relevantes son la 278, 300, 304, 298 y 262, todas con más de 2500 electores y básicamente comprenden de las zonas de Farallón, Cumbres de Figueroa, Rancho Acapulco, e Icacos. En total, dichas secciones suman 23,071 votos, mientras que la elección pasada tuvo 59 mil votos. Por lo que cualquier estrategia para ganar el distrito 3 necesita pasar por estas zonas (mapa 0).
 
-El mapa 1 muestra la lista nominal para la elección de 2018 de alrededor de 96,776 electores.Los mapas 2 y 3 tienen el porcentaje de participación electoral por sección para las elecciones de 2015 y 2018 utilizando los datos de las elecciones de diputados locales. Dado que la elección de 2018 fue atípica por por haber sido concurrent con la elección presidencial, la participación electoral fue más alta que en ocasiones anteriores: alrededor de 63.2% contra 56.6% en la elección de 2015. Para el distrito 3 la participación fue menor: 45.7% en 2015 y 59.1% en 2018. Es probable que la participación sea menor en 2021 que en la elección de hace dos años. Sin embargo, no es claro si la participación caerá a los niveles de 2015. Una estimación simple es promediar las participaciones de 2015 y 2018 para cada sección y multiplicarlo por la lista nominal, y así estimar cuántos electores acudirán a las urnas en 2021 (Mapa 4). 
+El mapa 1 muestra la lista nominal para la elección de 2018, alrededor de 96,776 electores. Los mapas 2 y 3 tienen el porcentaje de participación electoral por sección para las elecciones de 2015 y 2018 utilizando los datos de las elecciones de diputados locales. Dado que la elección de 2018 fue atípica por por haber sido concurrente con la elección presidencial, la participación electoral fue más alta que en ocasiones anteriores: alrededor de 63.2% contra 56.6% en la elección de 2015. Para el distrito 3 la participación fue menor: 45.7% en 2015 y 59.1% en 2018. Es probable que la participación sea menor en 2021 que en la elección de hace dos años. Sin embargo, no es claro si la participación caerá a los niveles de 2015,o aún más bajo dada la pandemia. Una estimación simple es promediar las participaciones de 2015 y 2018 para cada sección y multiplicarlo por la lista nominal, y así estimar cuántos electores acudirán a las urnas en 2021 (Mapa 4). 
 
 ```{r,include=FALSE}
 map_file=paste("/Users/armandoal/Desktop/Elections/eleccion_2010/colonias/colonias_12",".csv", sep="")
@@ -148,7 +149,8 @@ ggplot() +
       #geom_text(data = master[!filter_cp & !filter_ID | filter_include,], aes(X, Y, label = ID), size = 3, color='gray0', fontface="bold") +
       geom_text(data = master[filter_colonias,], aes(X, Y, label = NOMBRE), size = 3, color='gray0', fontface="bold") +
       #labs(fill=varname_title)+
-      theme_void() 
+     theme_void()+
+      theme(plot.title=element_text(size=20),plot.subtitle=element_text(size=15)) 
 
 #din=as.data.frame(colmapagro[,c("ID","NOMBRE","CP")])
 #din=din[,1:3]
@@ -232,7 +234,7 @@ colnames(data)=c("Sección","Lista Nominal","Part2015","Part2018","part_promedio
 
 ## Elección 2015 y Voto Diferenciado
 
-Movimiento Ciudadano participó con candidatos propios en las tres elecciones locales de 2015 y en coalición con el PRD y el PAN en 2018. MC tuvo mejores resultados en términos de votos y también porcentuales en la elección de 2015. Sin embargo, la elección de 2018 provocó una pérdida de votos a nivel local en todos los partidos excepto Morena, PT y PES. A nivel de Diputados locales, MC pasó de ser la tercera fuerza con 8.42% a ser la séptima con 3.61%. No obstante, los buenos resultados en 2015 quizás haya sido resultado del empuje de la candidatura de Luis Walton, pues en 2012 MC obtuvo 3.12% en la elección de diputados locales en 18 distritos con candidatos propios, y compitió en coalición (bajo un mismo logo) con el PRD y el PT por lo que no fue posible ver su fuerza real en los 10 distritos restantes.
+Movimiento Ciudadano (MC) participó con candidatos propios en las tres elecciones locales de 2015 y en coalición con el PRD y el PAN en 2018. MC tuvo mejores resultados en términos de votos y también porcentuales en la elección de 2015. Sin embargo, la elección de 2018 provocó una pérdida de votos a nivel local en todos los partidos excepto Morena, PT y PES. A nivel de Diputados locales, MC pasó de ser la tercera fuerza con 8.42% a ser la séptima con 3.61%. No obstante, los buenos resultados en 2015 quizás se hayan dado por el empuje de la candidatura de Luis Walton, pues en 2012 MC obtuvo 3.12% en la elección de diputados locales en 18 distritos con candidatos propios, y compitió en coalición (bajo un mismo logo) con el PRD y el PT por lo que no fue posible ver su fuerza real en los 10 distritos restantes.
 
 ```{r, echo=FALSE}
 #########################################Analysis Voto
@@ -298,11 +300,11 @@ write.csv(dataMC,"/Users/armandoal/Desktop/Elections/Guerrero/MC_tabla.csv", row
 #sapply(2:6, function(x) sum(dataMC[,x])/dem[x-1]) 
 ```
 
-## Movimiento Ciudadano y Estrategia Electoral
+## Secciones Electorales Prioritarias
 
 Cada partido político tiene metas diferentes y específicas para cada proceso electoral. Sin embargo, todos comparten la idea de maximizar votos. Una estrategia territorial para maximizar votos depende directamente de la distribución geográfica del distrito. Una manera consistiría en dividir el distrito en zonas geográficas con números similares de electores como lo muestra la siguiente tabla y el mapa 6, y organizar la estrategia para cada zona. 
 
-Un segunda estrategia consistiría en enfocarse en las secciones con los mayores números de votos. De esta manera, se utilizarían recursos escasos y se podría maximizar el número de votos en las secciones más relevantes. El mapa 7 muestra las secciones electorales con el mayor número de votos estimados: 21 secciones de 70 que representan el 50% de los votos estimados para la elección de 2021. Los votos estimados es el promedio de participación electorales de las últimas dos elecciones para Diputado Local multiplicada por la Lista Nominal de 2018.
+Un segunda estrategia consistiría en enfocarse en las secciones con los mayores números de votos. De esta manera, se utilizarían recursos escasos y se podría maximizar el número de votos en las secciones más relevantes. El mapa 7 muestra las secciones electorales con el mayor número de votos estimados: 21 secciones (de 70) representan 50% del total de votos estimados para la elección de 2021. Los votos estimados son el promedio de las participaciones electorales a nivel sección de las últimas dos elecciones para Diputado Locales. El promedio es multiplicado por la Lista Nominal de 2018, y así se obtiene un estimado de votos en 2021.
 
 ```{r,echo=FALSE}
 
@@ -339,7 +341,8 @@ print(total_lista)
       scale_fill_manual(values=c("lightblue","green", "red" , "yellow", "pink"))+
       ggtitle("Mapa 6. Zonas")+
       geom_text(data = list_master$DL18[filter,], aes(X, Y, label = SECCION), size = 4, color='gray0', fontface="bold") +
-      theme_void() 
+     theme_void()+
+      theme(plot.title=element_text(size=20),plot.subtitle=element_text(size=15))  
 
 
 # aggregate(list_master$DL15$MC,by=list(list_master$DL18$zona),FUN=sum )
@@ -380,8 +383,9 @@ list_master$DL18$labels=paste("S",list_master$DL18$SECCION,"V",list_master$DL18$
       ggtitle("Mapa 7. Secciones Prioritarias (Participación Estimada)")+
       geom_text(data = list_master$DL18[secc_impt,], aes(X, Y, label = labels), size = 4, color='gray0', fontface="bold") +
       labs(subtitle="S 256 V 2427 significa sección 256 y votos estimados 2427. Las secciones coloreadas representan el 50% de la votación total estimada para 2021")+
+     theme_void()+
+      theme(plot.title=element_text(size=20),plot.subtitle=element_text(size=15)) 
 
-      theme_void() 
 
 newdata <- dataMC[order(-dataMC$`Part. Estimada`),] 
 
@@ -389,4 +393,3 @@ print("Votos de Movimiento Ciudadano por Elección")
 print(newdata)
 ```
 
-La información y el código para este informe se encuentra en la página de Github
