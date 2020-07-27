@@ -2,8 +2,10 @@
 title: "Análisis Movimiento Ciudadano"
 author: "Armando AL"
 date: "7/19/2020"
-output: html_document
-editor_options: 
+output:
+  html_document: default
+  pdf_document: default
+editor_options:
   chunk_output_type: inline
 ---
 
@@ -16,7 +18,10 @@ library(matrixStats)
 library(tidyverse)
 library(formattable)
 ```
-La información y el código para este informe se encuentra en la página de Github https://github.com/lamayale/Elecciones_locales/blob/master/Distrito3.Rmd .
+La información y el código para este informe se encuentra en la página de Github https://github.com/lamayale/Elecciones_locales/blob/master/Distrito3.Rmd.
+
+Nota: Los datos para la elaboración de los mapas y cuadros fueron extraídos del Instituto Electoral y de Participación Ciudadana
+del Estado de Guerrero. Se excluyó la información de casillas especiales y  los totales pueden ser diferentes por modificaciones en el cómputo oficial.
 
 ## Participación Electoral
 
@@ -315,19 +320,23 @@ zona1=c(84,97,95,81,76,56,63,62,77,78,61,79,80,60,58,59,57,56,40,253,274,58,59)
 zona2=c(254,273,275,250,237,255,256,257, 276,258,259,271,272,260,248,249,238)
 
 zona3=c(277,270,261,239,240,220,242,241,219,218,198,216,383)
-
 zona4=c(217,243,244,263,268,269,262,278,287)
 zona5=c(279,285,286,289,288,286,298,300,299,304,302)
 
 list_zonas=list(zona1,zona2,zona3,zona4,zona5)
-
+###################################################################################
+#Dos maneras de hacer lo mismo. Una con lapply y la otra con un loop.
 zona=rep(0,length(list_sections[[dist_local]]))
-
 for (x in 1:5){
   zona[list_master$DL18$SECCION[filter] %in% list_zonas[[x]]]=x
 }
-zona=as.character(zona)
+#zona
 
+zona=rep(0,length(list_sections[[dist_local]]))
+li=sapply(1:5, function(x) zona[list_master$DL18$SECCION[filter] %in% list_zonas[[x]]]<<-x)
+#zona
+###################################################################################
+zona=as.character(zona)
 list_master$DL18$zona[filter]=zona
 
 total_lista=aggregate(list_master$DL18$LISTA_NOMINAL,by=list(list_master$DL18$zona),FUN=sum )
