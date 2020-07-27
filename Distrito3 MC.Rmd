@@ -1,0 +1,403 @@
+---
+title: "Análisis Movimiento Ciudadano"
+author: "Armando AL"
+date: "7/19/2020"
+output:
+  pdf_document: default
+  html_document: default
+editor_options:
+  chunk_output_type: inline
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width =15, fig.height = 15 )
+library(sf)
+library(tools)
+library(ggplot2)
+library(matrixStats)
+library(tidyverse)
+library(formattable)
+```
+La información y el código para este informe se encuentra en la página de Github https://github.com/lamayale/Elecciones_locales/blob/master/Distrito3.Rmd .
+Nota: Los datos para la elaboración de los mapas y cuadros fueron extraídos del Instituto Electoral y de Participación Ciudadana
+del Estado de Guerrero. Se excluyó la información de casillas especiales y  los totales pueden ser diferentes por modificaciones en el cómputo oficial.
+
+## Participación Electoral
+
+El distrito local 3 tiene 70 secciones electorales. Las secciones con mayor número de electores son las 256 y 279, con más de 4 mil votantes potenciales en la lista nominal de 2018. La sección 256 comprende de las colonias CTM, la Barranca de la Laja, y Marroquín, y la sección 279 comprende de las colonias Praderas de Costa Azul, Rinconada del Mar, Vista Hermosa, entre otras. Otras secciones relevantes son la 278, 300, 304, 298 y 262, todas con más de 2500 electores y básicamente comprenden de las zonas de Farallón, Cumbres de Figueroa, Rancho Acapulco, e Icacos. En total, dichas secciones suman 23,071 votos, mientras que la elección pasada tuvo 59 mil votos. Por lo que cualquier estrategia para ganar el distrito 3 necesita pasar por estas zonas (mapa 0).
+
+El mapa 1 muestra la lista nominal para la elección de 2018, alrededor de 96,776 electores. Los mapas 2 y 3 tienen el porcentaje de participación electoral por sección para las elecciones de 2015 y 2018 utilizando los datos de las elecciones de diputados locales. Dado que la elección de 2018 fue atípica por por haber sido concurrente con la elección presidencial, la participación electoral fue más alta que en ocasiones anteriores: alrededor de 63.2% contra 56.6% en la elección de 2015. Para el distrito 3 la participación fue menor: 45.7% en 2015 y 59.1% en 2018. Es probable que la participación sea menor en 2021 que en la elección de hace dos años. Sin embargo, no es claro si la participación caerá a los niveles de 2015,o aún más bajo dada la pandemia. Una estimación simple es promediar las participaciones de 2015 y 2018 para cada sección y multiplicarlo por la lista nominal, y así estimar cuántos electores acudirán a las urnas en 2021 (Mapa 4). 
+
+```{r,include=FALSE}
+map_file=paste("/Users/armandoal/Desktop/Elections/eleccion_2010/colonias/colonias_12",".csv", sep="")
+data=read.csv(map_file, sep=",", header=T)
+colmapa=st_read("/Users/armandoal/Desktop/Elections/eleccion_2010/colonias/colonias.shp")
+colmapagro=colmapa[colmapa$ENTIDAD==12 & colmapa$MUNICIPIO==1,]
+head(colmapagro)
+
+
+
+
+master <- cbind(colmapagro, st_coordinates(st_centroid(colmapagro)))
+master$ID <- toTitleCase(as.character(master$ID))
+```
+## Mapa del Distrito 3 con los Nombres de Varias Colonias
+```{r,echo=FALSE}
+filter_cp=(colmapagro$CP %in% c(40010,40701,49130,49760,39910,
+39920,
+39922,
+39901,
+39799,
+39800,
+39715,
+39700,
+39740,
+39760,
+39770,
+39780,
+39784,
+39785,
+39790,
+39552,
+39321,
+39911,
+39500,
+39931,
+39991,
+
+39930,
+39905,
+39906,
+39810,
+39878,
+39589,
+39852,
+39562,
+39000,
+39568,
+38452,
+
+39885,
+39589,
+39414,
+39856,
+39406,
+39907,
+39412,
+36225,
+36998,
+39554,
+39233,
+39225,
+39900,
+39,
+39904,
+39665,
+39720,
+30759,
+39422,
+39407,
+39405,
+39759,
+39390,
+39408,
+39460,
+39897,
+39908,
+39256,
+39988,
+39699,
+36558,
+39908,
+39721,
+39569,
+39669,
+
+39908,
+39521,
+39854,
+39530,
+39550,
+39528,
+
+39470,
+39540,
+39480,
+39560,
+39510,
+39370,
+36559,
+36558,
+39580,
+36987,
+39360,
+39909,
+39899,
+36658,
+39730,
+39585,
+39590,
+39529,
+36989,
+36589
+))
+filter_ID=c( colmapagro$ID %in% c(3723,1163:1174,1177:1179,4208,4200,3722,1220:1223,3678:3687,
+                                  1402:1468,2073, 1382:1396,2073))
+filter_include=c(colmapagro$ID %in% c(2204,1042,1589:1597))
+filter_colonias=c(colmapagro$ID %in% c(1043,1331,2066,2196,2197,1654,1335,1313,1633,1613,1639,1604,2069,1650,1604,2188,2190,2070,2206,1226,1218,1648))
+ggplot() +
+      geom_sf(data = master[!filter_cp & !filter_ID | filter_include,], color="black") +
+      #scale_fill_gradient(low="white",high="maroon4")+
+      ggtitle("Mapa 0. Diversas Colonias del Distrito 3 ")+
+      #labs(subtitle="Algunas colonias que no pertenecen al Distrito 3 fueron incluidas porque no pueden ser divididas")+
+      #geom_text(data = master[!filter_cp & !filter_ID | filter_include,], aes(X, Y, label = ID), size = 3, color='gray0', fontface="bold") +
+      geom_text(data = master[filter_colonias,], aes(X, Y, label = NOMBRE), size = 3, color='gray0', fontface="bold") +
+      #labs(fill=varname_title)+
+     theme_void()+
+      theme(plot.title=element_text(size=20),plot.subtitle=element_text(size=15)) 
+
+#din=as.data.frame(colmapagro[,c("ID","NOMBRE","CP")])
+#din=din[,1:3]
+#head(din)
+
+#write.csv(din,"/Users/armandoal/Desktop/Elections/eleccion_2010/colonias/mapagro.csv", row.names = FALSE)
+
+```
+
+## Mapas de Participación Electoral
+```{r, include=FALSE}
+rm(list=ls())
+
+
+
+election_type="DL" 
+year_state=2018  
+file_name="2018_SEE_DIP_LOC_MR_GRO_CAS.csv"
+dist_local=3
+source('/Users/armandoal/Desktop/Elections/Senadurias2018/GUERRERO/Guerrero_Elección Estatal.R')
+list_master=list(master)
+list_sectionsfull=list_sections
+
+election_type="DL" 
+year_state=2015  
+file_name="DIPUTADOS2015.csv"
+
+source('/Users/armandoal/Desktop/Elections/Senadurias2018/GUERRERO/Guerrero_Elección Estatal.R')
+
+
+list_master[[2]]=master
+
+election_type="AYUNT" 
+year_state=2018  
+file_name="2018_SEE_AYUN_GRO_CAS.csv"
+
+source('/Users/armandoal/Desktop/Elections/Senadurias2018/GUERRERO/Guerrero_Elección Estatal.R')
+
+list_master[[3]]=master
+
+election_type="AYUNT" 
+year_state=2015  
+file_name="AYUNTAMIENTO2015.csv"
+
+source('/Users/armandoal/Desktop/Elections/Senadurias2018/GUERRERO/Guerrero_Elección Estatal.R')
+
+list_master[[4]]=master
+
+election_type="GOBERNADOR" 
+year_state=2015  
+file_name="GOBERNADOR2015.csv"
+
+source('/Users/armandoal/Desktop/Elections/Senadurias2018/GUERRERO/Guerrero_Elección Estatal.R')
+
+list_master[[5]]=master
+names(list_master)=c("DL18","DL15","Ayunt18","Ayunt15","Gob15")
+rm(list=(ls()[ls()!=c("list_master","list_sections")]))
+```
+
+
+```{r, echo=FALSE}
+source('/Users/armandoal/Desktop/Elections/GUERRERO/graph_map.R')
+elecc_num=1
+dist_local=3
+graph_map("LISTA_NOMINAL","LISTA_NOMINAL","Lista Nominal",list_master[[elecc_num]], "Mapa 1. Distrito Local 3. List Nominal (2018)")
+graph_map("participacion","PAN","Participación Electoral %",list_master[[2]], "Mapa 2. Distrito Local 3. Participación Electoral % (2015)")
+graph_map("participacion","PAN","Participación Electoral %",list_master[[elecc_num]], "Mapa 3. Distrito Local 3. Participación Electoral % (2018)")
+
+list_master[[1]]$part21_con2015=list_master[[1]]$LISTA_NOMINAL*list_master[[2]]$participacion/100
+list_master[[1]]$part_promedio=list_master$DL18$LISTA_NOMINAL*(list_master[[2]]$participacion+list_master[[1]]$participacion)/(2*100)
+#list_master[[1]]$part_promedio=list_master[[1]]$LISTA_NOMINAL*(list_master[[2]]$participacion+list_master[[2]]$participacion)/(2*100)
+
+graph_map("part_promedio","PAN","Participación Electoral (%)",list_master[[elecc_num]], "Mapa 4. Distrito Local 3. Participación Estimada Electoral")
+
+filter=(list_master[[1]]$SECCION %in% list_sections[[dist_local]])
+
+data=data.frame(list_master[[1]]$SECCION[filter],list_master[[1]]$LISTA_NOMINAL[filter],list_master[[2]]$participacion[filter],list_master[[1]]$participacion[filter],list_master[[1]]$part_promedio[filter])
+colnames(data)=c("Sección","Lista Nominal","Part2015","Part2018","part_promedio")
+
+```
+
+## Elección 2015 y Voto Diferenciado
+
+Movimiento Ciudadano (MC) participó con candidatos propios en las tres elecciones locales de 2015 y en coalición con el PRD y el PAN en 2018. MC tuvo mejores resultados en términos de votos y también porcentuales en la elección de 2015. Sin embargo, la elección de 2018 provocó una pérdida de votos a nivel local en todos los partidos excepto Morena, PT y PES. A nivel de Diputados locales, MC pasó de ser la tercera fuerza con 8.42% a ser la séptima con 3.61%. No obstante, los buenos resultados en 2015 quizás se hayan dado por el empuje de la candidatura de Luis Walton, pues en 2012 MC obtuvo 3.12% en la elección de diputados locales en 18 distritos con candidatos propios, y compitió en coalición (bajo un mismo logo) con el PRD y el PT por lo que no fue posible ver su fuerza real en los 10 distritos restantes.
+
+```{r, echo=FALSE}
+#########################################Analysis Voto
+
+data15=read.csv("/Users/armandoal/Desktop/Elections/GUERRERO/Resultados Electorales 2015/Res_DL_2015.csv", sep=",", header=T)
+data18=read.csv("/Users/armandoal/Desktop/Elections/GUERRERO/Resultados Electorales 2018/Res_DL_2018.csv", sep=",", header=T)
+
+extract=c("PAN","PRI","PRD","MC","PT","PVEM","MORENA")
+d18=data18[,extract]
+d15=data15[,extract]
+
+
+party=c("PRI","PAN","PRD","MC","MORENA","PT","PVEM","TOTAL_VOTOS")
+p15=sapply(party, function(x) sum(data15[,x]))
+p18=sapply(party, function(x) sum(data18[,x]))
+diff=comma(p18-p15,0)
+DL_Total_Estado=data.frame(comma(p15,0),round(p15/p15["TOTAL_VOTOS"]*100,2),comma(p18,0),round(p18/p18["TOTAL_VOTOS"]*100,2),diff)
+colnames(DL_Total_Estado)=c("Votos 2015","Pct 2015","Votos 2018","Pct 2018","Diferencia")
+print("Diputados Locales- Votos Totales en Guerrero")
+print(DL_Total_Estado)
+
+##################################Ayuntamientos
+data15=read.csv("/Users/armandoal/Desktop/Elections/GUERRERO/Resultados Electorales 2015/Res_Ay_2015.csv", sep=",", header=T)
+data18=read.csv("/Users/armandoal/Desktop/Elections/GUERRERO/Resultados Electorales 2018/Res_Ay_2018.csv", sep=",", header=T)
+d18=data18[,extract]
+d15=data15[,extract]
+
+
+p15=sapply(party, function(x) (sum(data15[,x])))
+p18=sapply(party, function(x) (sum(data18[,x])))
+diff=comma(p18-p15,0)
+AY_Total_Estado=data.frame(comma(p15,0),round(p15/p15["TOTAL_VOTOS"]*100,2),comma(p18,0),round(p18/p18["TOTAL_VOTOS"]*100,2),diff)
+colnames(AY_Total_Estado)=c("Votos 2015","Pct 2015","Votos 2018","Pct 2018","Diferencia")
+
+print("Ayuntamientos- Votos Totales en Guerrero")
+print(AY_Total_Estado)
+```
+
+A nivel del Distrito 3, en 2015 los candidatos Christian Palacios Atondo y Luis Walton obtuvieron el 9.9% y 9.8% mientras que Víctor Jorrín obtuvo sólo el 7.8%. Para 2018, los candidatos de la coalición obtuvieron 2.8% para diputados locales y 2.69% para el Ayuntamiento.
+
+
+
+```{r, echo=FALSE}
+
+#Candidato Distrito 3 2015. CHRISTIAN ARTURO PALACIOS ATONDO. el subcontralor de la Auditoría, Christian Arturo Palacios Atondo 
+#Víctor Manuel Jorrín Lozano. Diputado 2012-2015 por el Distrito Federal 4, y fue candidato a la alcaldía de Acapulco en 2015.
+#Luis Walton. Gobernador.
+#Joaquín Badillo Escamilla. Empresario y previo candidato en 2015 por el PRI-PVEM. Alcaldes 2018 (Coalición PAN-PRD-MC)
+#JUAN JOSE FRANCISCO RODRIGUEZ OTERO. Diputado Local, Candidato al Distrito Federal 4 en 2015, presidente de la delegación estatal en GRO Panista.
+
+graph_map("MC","MC","Votos MC",list_master[[2]], "Mapa 5. Distrito Local 3. MC Votacion (2015)")
+graph_map("MC","MC","Votos MC",list_master[[4]], "Mapa 5. Distrito Local 3. MC Votacion por Ayuntamiento (2015)")
+graph_map("MC","MC","Votos MC",list_master[[5]], "Mapa 5. Distrito Local 3. MC Votacion para Gobernador (2015)")
+
+#sapply(1:5, function(x) length(list_master[[x]]$MC[filter]))
+
+dataMC=data.frame(list_master[[1]]$SECCION[filter],list_master[[2]]$MC[filter],list_master[[4]]$MC[filter],list_master[[5]]$MC[filter],list_master[[1]]$MC[filter],list_master[[3]]$MC[filter], round(list_master[[1]]$part_promedio[filter],0))
+colnames(dataMC)=c("Sección","DL2015","AY2015","GOB2015","DL2018","AY2018", "Part. Estimada")
+write.csv(dataMC,"/Users/armandoal/Desktop/Elections/Guerrero/MC_tabla.csv", row.names = FALSE)
+
+#sapply(2:6, function(x) sum(dataMC[,x]) )
+#dem=c(sapply(c(2,4,5,1,2), function(x) sum(list_master[[x]]$TOTAL_VOTOS[filter]) ))
+#sapply(2:6, function(x) sum(dataMC[,x])/dem[x-1]) 
+```
+
+## Secciones Electorales Prioritarias
+
+Cada partido político tiene metas diferentes y específicas para cada proceso electoral. Sin embargo, todos comparten la idea de maximizar votos. Una estrategia territorial para maximizar votos depende directamente de la distribución geográfica del distrito. Una manera consistiría en dividir el distrito en zonas geográficas con números similares de electores como lo muestra la siguiente tabla y el mapa 6, y organizar la estrategia para cada zona. 
+
+Un segunda estrategia consistiría en enfocarse en las secciones con los mayores números de votos. De esta manera, se utilizarían recursos escasos y se podría maximizar el número de votos en las secciones más relevantes. El mapa 7 muestra las secciones electorales con el mayor número de votos estimados: 21 secciones (de 70) representan 50% del total de votos estimados para la elección de 2021. Los votos estimados son el promedio de las participaciones electorales a nivel sección de las últimas dos elecciones para Diputado Locales. El promedio es multiplicado por la Lista Nominal de 2018, y así se obtiene un estimado de votos en 2021.
+
+```{r,echo=FALSE}
+
+
+
+zona1=c(84,97,95,81,76,56,63,62,77,78,61,79,80,60,58,59,57,56,40,253,274,58,59)
+
+zona2=c(254,273,275,250,237,255,256,257, 276,258,259,271,272,260,248,249,238)
+
+zona3=c(277,270,261,239,240,220,242,241,219,218,198,216,383)
+zona4=c(217,243,244,263,268,269,262,278,287)
+zona5=c(279,285,286,289,288,286,298,300,299,304,302)
+
+list_zonas=list(zona1,zona2,zona3,zona4,zona5)
+###################################################################################
+#Dos maneras de hacer lo mismo. Una con lapply y la otra con un loop.
+zona=rep(0,length(list_sections[[dist_local]]))
+for (x in 1:5){
+  zona[list_master$DL18$SECCION[filter] %in% list_zonas[[x]]]=x
+}
+zona
+
+zona=rep(0,length(list_sections[[dist_local]]))
+sapply(1:5, function(x) zona[list_master$DL18$SECCION[filter] %in% list_zonas[[x]]]<<-x)
+zona
+###################################################################################
+zona=as.character(zona)
+list_master$DL18$zona[filter]=zona
+
+total_lista=aggregate(list_master$DL18$LISTA_NOMINAL,by=list(list_master$DL18$zona),FUN=sum )
+names(total_lista)=c("Zona","Lista Nominal")
+print(total_lista)
+```
+
+```{r,echo=FALSE}
+   ggplot() +
+      geom_sf(data = list_master$DL18[filter,], aes(fill=zona), show.legend = T, color="black") +
+      scale_fill_manual(values=c("lightblue","green", "red" , "yellow", "pink"))+
+      ggtitle("Mapa 6. Zonas")+
+      geom_text(data = list_master$DL18[filter,], aes(X, Y, label = SECCION), size = 4, color='gray0', fontface="bold") +
+     theme_void()+
+      theme(plot.title=element_text(size=20),plot.subtitle=element_text(size=15))  
+
+
+# aggregate(list_master$DL15$MC,by=list(list_master$DL18$zona),FUN=sum )
+# aggregate(list_master$DL18$MC,by=list(list_master$DL18$zona),FUN=sum )
+ 
+
+
+secc_impt=c(256,
+279,
+278,
+304,
+300,
+298,
+262,
+243,
+198,
+287,
+217,
+285,
+263,
+277,
+257,
+299,
+255,
+254,
+244,
+216,
+302)
+
+list_master$DL18$secc_prioritarias=(list_master$DL18$SECCION %in% secc_impt)
+list_master$DL18$part_promedio=round(list_master$DL18$part_promedio,0)
+list_master$DL18$labels=paste("S",list_master$DL18$SECCION,"V",list_master$DL18$part_promedio)
+
+
+   ggplot() +
+      geom_sf(data = list_master$DL18[filter,], aes(fill=secc_prioritarias), show.legend = F, color="black") +
+      scale_fill_manual(values=c("white","orangered"))+
+      ggtitle("Mapa 7. Secciones Prioritarias (Participación Estimada)")+
+      geom_text(data = list_master$DL18[secc_impt,], aes(X, Y, label = labels), size = 4, color='gray0', fontface="bold") +
+      labs(subtitle="S 256 V 2427 significa sección 256 y votos estimados 2427. Las secciones coloreadas representan el 50% de la votación total estimada para 2021")+
+     theme_void()+
+      theme(plot.title=element_text(size=20),plot.subtitle=element_text(size=15)) 
+
+
+newdata <- dataMC[order(-dataMC$`Part. Estimada`),] 
+
+print("Votos de Movimiento Ciudadano por Elección")
+print(newdata)
+```
+
